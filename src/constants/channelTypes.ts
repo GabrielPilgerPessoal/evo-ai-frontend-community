@@ -1,5 +1,6 @@
 import { ChannelType } from '@/types/channels/providers';
 import i18n from '@/i18n/config';
+import { HIDDEN_WHATSAPP_PROVIDERS } from '@/config/omnichannel';
 
 // Function to get channel types with translations.
 //
@@ -58,7 +59,7 @@ export const getChannelTypes = (): ChannelType[] => [
         name: i18n.t('channels:newChannel.providers.twilio.name'),
         description: i18n.t('channels:newChannel.providers.twilio.description'),
       },
-    ],
+    ].filter(provider => !HIDDEN_WHATSAPP_PROVIDERS.includes(provider.id)),
   },
   {
     id: 'email',

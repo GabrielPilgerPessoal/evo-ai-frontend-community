@@ -30,6 +30,7 @@ import {
   ShieldCheck,
   FileText,
 } from 'lucide-react';
+import { isHiddenRoute } from '@/config/omnichannel';
 
 export interface MenuItem {
   id?: string;
@@ -68,7 +69,7 @@ export interface ProfileMenuItem {
   onClick?: () => void;
 }
 
-export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => [
+const buildCustomerMenuItems = (t: (key: string) => string): MenuItem[] => [
   {
     // `dashboard.read` is not a catalog resource — it lives in the auth
     // BASIC_READ_PERMISSIONS (every authenticated user holds it, it is the
@@ -331,6 +332,15 @@ export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] => 
     ],
   },
 ];
+
+export const getCustomerMenuItems = (t: (key: string) => string): MenuItem[] =>
+  buildCustomerMenuItems(t)
+    .filter(item => !isHiddenRoute(item.href))
+    .map(item =>
+      item.subItems
+        ? { ...item, subItems: item.subItems.filter(subItem => !isHiddenRoute(subItem.href)) }
+        : item,
+    );
 
 export const getProfileMenuItems = (
   t: (key: string) => string,

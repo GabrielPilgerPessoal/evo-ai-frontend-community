@@ -1,8 +1,9 @@
 import { NavLink, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Mail, HardDrive, MessageSquare, Sparkles, Puzzle, Cable } from 'lucide-react';
+import { isHiddenRoute } from '@/config/omnichannel';
 
-const navItems = [
+const allNavItems = [
   { key: 'email', path: '/settings/admin/email', icon: Mail },
   { key: 'storage', path: '/settings/admin/storage', icon: HardDrive },
   { key: 'channels', path: '/settings/admin/channels', icon: MessageSquare },
@@ -10,6 +11,8 @@ const navItems = [
   { key: 'integrations', path: '/settings/admin/integrations', icon: Puzzle },
   { key: 'evolutionHub', path: '/settings/admin/evolution-hub', icon: Cable },
 ] as const;
+
+const navItems = allNavItems.filter(item => !isHiddenRoute(item.path));
 
 export default function AdminSettingsLayout() {
   const { t } = useLanguage('adminSettings');

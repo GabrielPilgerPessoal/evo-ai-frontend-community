@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { isHiddenRoute } from '@/config/omnichannel';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useNavigate } from 'react-router-dom';
 import { SettingsIntegrationsTour } from '@/tours';
@@ -165,7 +166,9 @@ export default function Integrations() {
   };
 
   const visibleIntegrations = integrations.filter(
-    integration => !(integration.id === 'openai' && openaiConfigured),
+    integration =>
+      !(integration.id === 'openai' && openaiConfigured) &&
+      !isHiddenRoute(`/settings/integrations/${integration.id}`),
   );
 
   // Filter integrations
