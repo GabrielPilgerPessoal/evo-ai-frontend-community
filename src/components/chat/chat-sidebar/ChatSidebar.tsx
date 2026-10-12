@@ -52,13 +52,13 @@ import {
   senderNameFromAttributes,
 } from '@/utils/chat/mediaLabels';
 import { formatConversationTime, formatDetailedTime } from '@/utils/time/timeHelpers';
-import { isPhoneBearingChannel } from '@/utils/channelUtils';
-import { formatContactPhone } from '@/utils/contact/formatContactPhone';
+import { contactDisplayName } from '@/utils/contact/contactDisplayName';
 import { UnreadBadge } from '@/components/shared';
 import { ConversationSkeleton } from '../loading-states';
 import { NoConversations } from '../empty-states';
 import ContactAvatar from '../contact/ContactAvatar';
 import ConversationBadges from '../conversation/ConversationBadges';
+import ConversationStatusIcon from '@/components/chat/conversation/ConversationStatusIcon';
 import ConversationsFilterPopover from '../filters/ConversationsFilterPopover';
 import ConversationSegments from './ConversationSegments';
 import GlobalSearchPanel from '../search/GlobalSearchPanel';
@@ -948,9 +948,6 @@ const ChatSidebar = ({
               const channelType =
                 conversation.inbox?.channel_type || conversation.inbox?.channel_type;
               const channelProvider = conversation.inbox?.provider;
-              const phoneDisplay = isPhoneBearingChannel(channelType)
-                ? formatContactPhone(conversation.contact?.phone_number)
-                : null;
 
               return renderConversationContextMenu(
                 conversation,
@@ -961,7 +958,7 @@ const ChatSidebar = ({
                   // no box model; existir só nos estados selecionados fazia o card "pular"
                   // de posição ao (des)selecionar (o vizinho de baixo era empurrado pelo
                   // mb-2.5 que só um dos 3 ramos tinha).
-                  className={`p-4 mx-0.5 mb-2.5 rounded-[14px] border cursor-pointer transition-colors ${
+                  className={`px-4 py-1.5 mx-0.5 mb-2.5 rounded-[14px] border cursor-pointer transition-colors ${
                     isBulkSelected
                       ? 'bg-primary/5 border-primary/20'
                       : isSelected
@@ -974,7 +971,7 @@ const ChatSidebar = ({
                       : onConversationSelect(conversation)
                   }
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start">
                     <div className="flex items-start gap-3 min-w-0 flex-1">
                       {selectionMode && (
                         <div
@@ -1003,40 +1000,57 @@ const ChatSidebar = ({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 min-w-0 mb-1">
-                          <p className="font-medium truncate">
-                            {conversation.contact?.name || t('chatSidebar.contactNoName')}
-                          </p>
-                          {Boolean(conversation.custom_attributes?.pinned) && (
-                            <Pin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                          )}
-                          {conversation.additional_attributes?.conversation_type === 'post' && (
-                            <Badge
-                              variant="outline"
-                              className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0"
-                              title="Facebook Post"
-                            >
-                              <FileText className="h-2.5 w-2.5 mr-0.5" />
-                              Post
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <p className="font-medium truncate">
+                              {contactDisplayName(
+                                conversation.contact?.name,
+                                conversation.contact?.phone_number,
+                              ) || t('chatSidebar.contactNoName')}
+                            </p>
+                            {Boolean(conversation.custom_attributes?.pinned) && (
+                              <Pin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                            )}
+                            {conversation.additional_attributes?.conversation_type === 'post' && (
+                              <Badge
+                                variant="outline"
+                                className="h-4 px-1.5 text-[10px] bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-700 flex-shrink-0"
+                                title="Facebook Post"
+                              >
+                                <FileText className="h-2.5 w-2.5 mr-0.5" />
+                                Post
+                              </Badge>
+                            )}
+                          </div>
+                          <span
+                            className="text-xs text-muted-foreground leading-none flex-shrink-0"
+                            title={formatDetailedTime(conversation.timestamp)}
+                          >
+                            {formatConversationTime(conversation.timestamp)}
+                          </span>
                         </div>
 
-                        {phoneDisplay && (
-                          <p
-                            className="text-xs text-muted-foreground truncate"
-                            title={t('chatSidebar.phoneNumber')}
-                            aria-label={`${t('chatSidebar.phoneNumber')}: ${phoneDisplay}`}
-                          >
-                            {phoneDisplay}
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-sm text-muted-foreground truncate min-w-0 flex-1">
+                            {getLastMessage(conversation)}
                           </p>
-                        )}
-
-                        <p className="text-sm text-muted-foreground truncate">
-                          {getLastMessage(conversation)}
-                        </p>
+                          <UnreadBadge
+                            count={conversations.getUnreadCount(conversation.id) || 0}
+                            ariaLabel={t('unreadBadge.ariaLabel', {
+                              count: conversations.getUnreadCount(conversation.id) || 0,
+                            })}
+                            className="flex-shrink-0"
+                          />
+                          <div className="flex-shrink-0">
+                            <ConversationStatusIcon status={conversation.status} size="sm" />
+                          </div>
+                        </div>
 
                         {/* Badges da conversa */}
-                        <ConversationBadges conversation={conversation} maxLabels={2} />
+                        <ConversationBadges
+                          conversation={conversation}
+                          maxLabels={2}
+                          showStatus={false}
+                        />
 
                         {/* Assignee indicator badge */}
                         {conversation?.assignee && (
@@ -1053,20 +1067,6 @@ const ChatSidebar = ({
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0 ml-2">
-                      <span
-                        className="text-xs text-muted-foreground leading-none"
-                        title={formatDetailedTime(conversation.timestamp)}
-                      >
-                        {formatConversationTime(conversation.timestamp)}
-                      </span>
-                      <UnreadBadge
-                        count={conversations.getUnreadCount(conversation.id) || 0}
-                        ariaLabel={t('unreadBadge.ariaLabel', {
-                          count: conversations.getUnreadCount(conversation.id) || 0,
-                        })}
-                      />
                     </div>
                   </div>
                 </div>,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, GitBranch, Tag as TagIcon, ArrowUp, Minus, ArrowDown } from 'lucide-react';
+import { AlertTriangle, GitBranch, ArrowUp, Minus, ArrowDown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@evoapi/design-system/tooltip';
 import { Conversation } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -228,14 +228,13 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
           {conversationLabels.map(label => (
             <div
               key={label.id}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full text-white"
+              className="inline-flex items-center px-1.5 text-[10px] leading-4 font-medium rounded-md text-white"
               style={{
                 backgroundColor: label.color,
               }}
               title={label.title}
             >
-              <TagIcon className="w-2.5 h-2.5" />
-              <span className="truncate max-w-12">{label.title}</span>
+              <span className="truncate max-w-24">{label.title}</span>
             </div>
           ))}
 
@@ -244,7 +243,7 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-400 text-white cursor-help">
+                  <div className="inline-flex items-center px-1.5 text-[10px] leading-4 font-medium rounded-md bg-gray-400 text-white cursor-help">
                     +{hiddenLabels.length}
                   </div>
                 </TooltipTrigger>
@@ -258,10 +257,9 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
                       {hiddenLabels.map(label => (
                         <div
                           key={label.id}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md text-white shadow-sm"
+                          className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-md text-white"
                           style={{ backgroundColor: label.color }}
                         >
-                          <TagIcon className="w-3 h-3" />
                           <span>{label.title}</span>
                         </div>
                       ))}
@@ -289,14 +287,13 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
       {conversationLabels.map(label => (
         <div
           key={label.id}
-          className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full text-white"
+          className="inline-flex items-center px-1.5 text-[10px] leading-4 font-medium rounded-md text-white"
           style={{
             backgroundColor: label.color,
           }}
           title={label.title}
         >
-          <TagIcon className="w-2.5 h-2.5" />
-          <span className="truncate max-w-12">{label.title}</span>
+          <span className="truncate max-w-24">{label.title}</span>
         </div>
       ))}
 
@@ -305,7 +302,7 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-400 text-white cursor-help">
+              <div className="inline-flex items-center px-1.5 text-[10px] leading-4 font-medium rounded-md bg-gray-400 text-white cursor-help">
                 +{hiddenLabels.length}
               </div>
             </TooltipTrigger>
@@ -319,10 +316,9 @@ const ConversationBadges: React.FC<ConversationBadgesProps> = ({
                   {hiddenLabels.map(label => (
                     <div
                       key={label.id}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md text-white shadow-sm"
+                      className="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-md text-white"
                       style={{ backgroundColor: label.color }}
                     >
-                      <TagIcon className="w-3 h-3" />
                       <span>{label.title}</span>
                     </div>
                   ))}
