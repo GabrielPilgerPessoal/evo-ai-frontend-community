@@ -69,7 +69,7 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
         isResolved ? 'cursor-pointer hover:opacity-80' : 'opacity-75'
       } ${
         isOwn
-          ? 'bg-primary/20 dark:bg-primary/15 text-white dark:text-white/90 border-l-2 border-primary/40 dark:border-primary/50'
+          ? 'bg-black/5 dark:bg-black/20 text-bubble-out-foreground border-l-2 border-bubble-out-read'
           : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 border-l-2 border-slate-300 dark:border-slate-600'
       }`}
       onClick={handleClick}
@@ -77,14 +77,14 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
       <div className="flex items-start gap-1.5">
         <Reply className={`h-3 w-3 flex-shrink-0 mt-0.5 ${
           isOwn
-            ? 'text-white/80 dark:text-white/70'
+            ? 'text-bubble-out-muted'
             : 'text-slate-500 dark:text-slate-400'
         }`} />
         <div className="flex-1 min-w-0">
           {isResolved && (
             <div className={`text-xs font-medium mb-0.5 ${
               isOwn
-                ? 'text-white/90 dark:text-white/90'
+                ? 'text-bubble-out-foreground'
                 : 'text-slate-700 dark:text-slate-200'
             }`}>
               {senderName}
@@ -94,7 +94,7 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
             isResolved ? '' : 'italic'
           } ${
             isOwn
-              ? 'text-white/80 dark:text-white/80'
+              ? 'text-bubble-out-muted'
               : 'text-slate-600 dark:text-slate-300'
           }`}>
             {previewContent}

@@ -26,7 +26,8 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
   // isFromBot ali só ficam true junto de isOwn (ver MessageList.tsx). Notas privadas mantêm
   // fundo claro mesmo com isOwn, então ficam com o texto neutro.
   const isOnColoredBubble = isOwn && !message.private;
-  const timeTextClass = isOnColoredBubble ? 'text-white/70' : 'text-muted-foreground';
+  const timeTextClass = isOnColoredBubble ? 'text-bubble-out-muted' : 'text-muted-foreground';
+  const readTickClass = isOnColoredBubble ? 'text-bubble-out-read' : 'text-primary';
 
   // Every channel service writes external_error, and so does SendReplyJob's generic rescue —
   // the text may be a provider rejection or an internal exception. Show it, never name a source.
@@ -97,17 +98,17 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
       case 'sent':
         // Para mensagens privadas, 'sent' é o status final correto
         // Para mensagens públicas, 'sent' indica que foi enviada para o canal
-        return <Check className="h-3 w-3 text-muted-foreground" />;
+        return <Check className={`h-3 w-3 ${timeTextClass}`} />;
       case 'delivered':
-        return <CheckCheck className="h-3 w-3 text-muted-foreground" />;
+        return <CheckCheck className={`h-3 w-3 ${timeTextClass}`} />;
       case 'read':
-        return <CheckCheck className="h-3 w-3 text-primary" />;
+        return <CheckCheck className={`h-3 w-3 ${readTickClass}`} />;
       case 'progress':
         return <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />;
       // 'failed' never reaches here: private messages return above, public ones are
       // handled by the branch before the switch.
       default:
-        return <Clock className="h-3 w-3 text-muted-foreground animate-pulse" />;
+        return <Clock className={`h-3 w-3 ${timeTextClass} animate-pulse`} />;
     }
   };
 
@@ -129,7 +130,7 @@ const MessageStatus: React.FC<MessageStatusProps> = ({ message, isOwn, onRetry, 
     <div
       className={`flex items-center gap-1 mt-1.5 text-xs ${isOwn ? 'justify-end' : 'justify-start'}`}
     >
-      <span className="text-muted-foreground">{formatMessageTime(message.created_at)}</span>
+      <span className={timeTextClass}>{formatMessageTime(message.created_at)}</span>
       {getStatusIcon()}
     </div>
   );

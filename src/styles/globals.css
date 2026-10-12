@@ -12,6 +12,10 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-bubble-out: var(--bubble-out);
+  --color-bubble-out-foreground: var(--bubble-out-foreground);
+  --color-bubble-out-muted: var(--bubble-out-muted);
+  --color-bubble-out-read: var(--bubble-out-read);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -94,6 +98,12 @@
 }
 
 :root {
+  /* Bolha das mensagens enviadas: as cores do WhatsApp, modo claro. */
+  --bubble-out: #d9fdd3;
+  --bubble-out-foreground: #111b21;
+  --bubble-out-muted: #667781;
+  --bubble-out-read: #53bdeb;
+
   /* Flow Builder design tokens — LIGHT mode values (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.95 0.05 150);
   --flow-node-trigger-fg: oklch(0.30 0.12 150);
@@ -146,6 +156,12 @@
 }
 
 .dark {
+  /* Bolha das mensagens enviadas: as cores do WhatsApp, modo escuro. */
+  --bubble-out: #005c4b;
+  --bubble-out-foreground: #e9edef;
+  --bubble-out-muted: rgb(233 237 239 / 0.65);
+  --bubble-out-read: #53bdeb;
+
   /* Flow Builder design tokens — DARK mode overrides (EVO-1253). */
   --flow-node-trigger-bg: oklch(0.22 0.05 150);
   --flow-node-trigger-fg: oklch(0.90 0.10 150);

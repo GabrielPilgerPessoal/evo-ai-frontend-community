@@ -492,11 +492,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 : isPrivate
                 ? 'bg-orange-50 border-2 border-orange-200 border-l-4 border-l-orange-400 dark:bg-orange-950/20 dark:border-orange-800/50 dark:border-l-orange-600'
                 : isFromAgent
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-bubble-out text-bubble-out-foreground'
                   : isFromBot
                     ? 'bg-purple-600 text-white dark:bg-purple-700'
                     : isOwn
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-bubble-out text-bubble-out-foreground'
                       : isThreadReply
                         ? 'bg-muted/70 border border-l-2 border-l-primary/40 dark:bg-muted/50' // Estilo mais sutil para replies
                         : 'bg-muted border'
