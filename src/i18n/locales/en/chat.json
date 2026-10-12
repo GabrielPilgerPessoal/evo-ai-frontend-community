@@ -99,6 +99,10 @@
       "sendFailed": "Send failed - Click to see the reason",
       "tryAgain": "Try again"
     },
+    "messageSticker": {
+      "alt": "Sticker",
+      "loadError": "Sticker unavailable"
+    },
     "replyPreview": {
       "imageAttachment": "📷 Image",
       "audioAttachment": "🎵 Audio",

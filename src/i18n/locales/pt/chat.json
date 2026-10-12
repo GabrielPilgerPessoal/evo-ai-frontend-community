@@ -98,6 +98,10 @@
       "sendFailed": "Falha no envio - Clique para ver o motivo",
       "tryAgain": "Tentar novamente"
     },
+    "messageSticker": {
+      "alt": "Autocolante",
+      "loadError": "Autocolante indisponível"
+    },
     "replyPreview": {
       "imageAttachment": "📷 Imagem",
       "audioAttachment": "🎵 Áudio",

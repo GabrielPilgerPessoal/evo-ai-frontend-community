@@ -99,6 +99,10 @@
       "sendFailed": "Falha no envio - Clique para ver o motivo",
       "tryAgain": "Tentar novamente"
     },
+    "messageSticker": {
+      "alt": "Figurinha",
+      "loadError": "Figurinha indisponível"
+    },
     "replyPreview": {
       "imageAttachment": "📷 Imagem",
       "audioAttachment": "🎵 Áudio",

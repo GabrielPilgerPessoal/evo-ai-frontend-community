@@ -98,6 +98,10 @@
       "sendFailed": "Envío fallido - Haga clic para ver el motivo",
       "tryAgain": "Intentar de nuevo"
     },
+    "messageSticker": {
+      "alt": "Sticker",
+      "loadError": "Sticker no disponible"
+    },
     "replyPreview": {
       "imageAttachment": "📷 Imagen",
       "audioAttachment": "🎵 Audio",

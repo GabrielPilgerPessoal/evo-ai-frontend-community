@@ -22,6 +22,7 @@ import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
 import MessageImage from '@/components/chat/messages/MessageImage';
+import MessageSticker from '@/components/chat/messages/MessageSticker';
 import MessageFile from '@/components/chat/messages/MessageFile';
 import MessageAudio from '@/components/chat/messages/MessageAudio';
 import MessageVideo from '@/components/chat/messages/MessageVideo';
@@ -185,6 +186,14 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     (firstAttachmentFileType === 'audio' || firstAttachmentFileType.includes('audio/'));
   const timestampVariant: 'default' | 'tuck' =
     isPlainTextContent || isAudioOnly ? 'tuck' : 'default';
+  const isSticker =
+    hasAttachments &&
+    message.content_attributes?.media_type === 'sticker' &&
+    (firstAttachmentFileType === 'image' || firstAttachmentFileType.includes('image/'));
+  // Como no WhatsApp, a figurinha fica solta, sem a bolha. Resposta, nota privada e
+  // mensagem apagada mantêm a bolha, que é onde esses avisos aparecem.
+  const isBareSticker =
+    isSticker && !isPrivate && !hasReplyReference && !isDeleted && !isRevokedByContact;
 
   const renderMessageContent = () => {
     // 🎯 CORREÇÃO: Detectar attachments automaticamente
@@ -220,7 +229,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 contentAttributes={message.content_attributes}
               />
             )}
-            <MessageImage attachments={message.attachments} />
+            {isSticker ? (
+              <MessageSticker attachments={message.attachments} />
+            ) : (
+              <MessageImage attachments={message.attachments} />
+            )}
           </>
         );
       } else if (fileType === 'audio' || fileType.includes('audio/')) {
@@ -472,9 +485,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
         {renderContextMenu(
           <div
-            className={`rounded-lg px-3 py-2 ${
+            className={`rounded-lg ${isBareSticker ? '' : 'px-3 py-2'} ${
               isOwn ? 'rounded-tr-[4px]' : isThreadReply ? 'rounded-tl-md' : ''
-            } ${isPrivate
+            } ${isBareSticker
+                ? ''
+                : isPrivate
                 ? 'bg-orange-50 border-2 border-orange-200 border-l-4 border-l-orange-400 dark:bg-orange-950/20 dark:border-orange-800/50 dark:border-l-orange-600'
                 : isFromAgent
                   ? 'bg-primary text-primary-foreground'
