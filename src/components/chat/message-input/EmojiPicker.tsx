@@ -7,9 +7,11 @@ interface EmojiPickerProps {
   onEmojiSelect: (emoji: string) => void;
   onClose: () => void;
   isOpen: boolean;
+  // Where the picker opens relative to its anchor; above by default.
+  placement?: 'top' | 'bottom';
 }
 
-const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, onClose, isOpen }) => {
+const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, onClose, isOpen, placement = 'top' }) => {
   const { t } = useLanguage('chat');
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +74,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, onClose, isOpe
   return (
     <div
       ref={pickerRef}
-      className="absolute bottom-full left-0 mb-2 z-[9999]"
+      className={`absolute left-0 z-[9999] ${placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
       style={{
         minWidth: '350px',
         maxWidth: '350px',

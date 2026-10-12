@@ -21,6 +21,8 @@ for file in $(find "$HTML_DIR" -name '*.js' -type f); do
   [ -n "$VITE_EVOAI_API_URL" ] && sed -i "s|VITE_EVOAI_API_URL_PLACEHOLDER|${VITE_EVOAI_API_URL}|g" "$file"
   [ -n "$VITE_AGENT_PROCESSOR_URL" ] && sed -i "s|VITE_AGENT_PROCESSOR_URL_PLACEHOLDER|${VITE_AGENT_PROCESSOR_URL}|g" "$file"
   [ -n "$VITE_EVOFLOW_API_URL" ] && sed -i "s|VITE_EVOFLOW_API_URL_PLACEHOLDER|${VITE_EVOFLOW_API_URL}|g" "$file"
+  [ -n "$VITE_SUPPORT_WHATSAPP" ] && sed -i "s|VITE_SUPPORT_WHATSAPP_PLACEHOLDER|${VITE_SUPPORT_WHATSAPP}|g" "$file"
+  [ -n "$VITE_CAMPAIGNS_API_URL" ] && sed -i "s|VITE_CAMPAIGNS_API_URL_PLACEHOLDER|${VITE_CAMPAIGNS_API_URL}|g" "$file"
 done
 
 # Configure nginx CSP based on environment (default: development)
@@ -56,6 +58,16 @@ case "$VITE_API_URL" in
         -e "s|\(media-src [^;]*\);|\1 ${API_ORIGIN};|" \
         -e "s|\(connect-src [^;]*\);|\1 ${API_ORIGIN};|" \
         "$NGINX_CONF"
+    fi
+    ;;
+esac
+
+# Same for the optional campaigns service when it is reached over plain http.
+case "$VITE_CAMPAIGNS_API_URL" in
+  http://*)
+    CAMPAIGNS_ORIGIN="$(printf '%s' "$VITE_CAMPAIGNS_API_URL" | sed "s|^\(http://[^/]*\).*|\1|")"
+    if ! grep -q "connect-src[^;]* $CAMPAIGNS_ORIGIN" "$NGINX_CONF"; then
+      sed -i -e "s|\(connect-src [^;]*\);|\1 ${CAMPAIGNS_ORIGIN};|" "$NGINX_CONF"
     fi
     ;;
 esac

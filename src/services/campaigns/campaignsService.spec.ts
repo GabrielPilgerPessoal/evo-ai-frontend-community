@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { campaignsService } from './campaignsService';
-import api from '@/services/core/apiEvoFlow';
+import api from '@/services/core/apiCampaigns';
 import { CampaignChannelType, CampaignStatus, CampaignType } from '@/types/campaigns';
 
 // EVO-1838: campaignsService unwraps envelopes through the shared apiHelpers
@@ -13,7 +13,7 @@ import { CampaignChannelType, CampaignStatus, CampaignType } from '@/types/campa
 //     above those tests). It routes through the helper for consistency only.
 // Every method the refactor touched is exercised below, so the suite fails if the
 // refactor is reverted — not just the first one.
-vi.mock('@/services/core/apiEvoFlow', () => ({
+vi.mock('@/services/core/apiCampaigns', () => ({
   default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 

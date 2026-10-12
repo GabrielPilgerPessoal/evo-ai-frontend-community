@@ -1,7 +1,15 @@
-import api from '@/services/core/apiEvoFlow';
+import api from '@/services/core/apiCampaigns';
+import { CAMPAIGNS_API_URL } from '@/config/omnichannel';
 import { extractData, extractResponse } from '@/utils/apiHelpers';
 import type {
+  AudienceContact,
+  AudiencePreviewParams,
+  BroadcastCampaignData,
   Campaign,
+  CampaignMedia,
+  CampaignRecipient,
+  CampaignRecipientStatus,
+  ContactsImportPreview,
   CampaignsResponse,
   CampaignsListParams,
   CampaignCreateData,
@@ -58,6 +66,74 @@ class CampaignsService {
   async createCampaign(data: CampaignCreateData): Promise<Campaign> {
     const response = await api.post<{ success: boolean; data: Campaign }>('/campaigns', data);
     return extractData<Campaign>(response);
+  }
+
+  // Evolution Go broadcasts: free-text message, label audience and a send pace.
+  async createBroadcast(data: BroadcastCampaignData): Promise<Campaign> {
+    const response = await api.post<{ success: boolean; data: Campaign }>('/campaigns', data);
+    return extractData<Campaign>(response);
+  }
+
+  async updateBroadcast(campaignId: string, data: Partial<BroadcastCampaignData>): Promise<Campaign> {
+    const response = await api.patch<{ success: boolean; data: Campaign }>(`/campaigns/${campaignId}`, data);
+    return extractData<Campaign>(response);
+  }
+
+  // True when the service is only simulating sends (its DRY_RUN setting).
+  async isDryRun(): Promise<boolean> {
+    const response = await api.get(`${CAMPAIGNS_API_URL}/health`);
+    const body = response.data?.data ?? response.data;
+    return body?.dry_run === true;
+  }
+
+  // Files sent as campaign messages are uploaded first and referenced by id.
+  async uploadMedia(file: File): Promise<CampaignMedia> {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await api.post<{ success: boolean; data: CampaignMedia }>('/campaigns/media', form, {
+      // Lets the browser set the multipart boundary.
+      headers: { 'Content-Type': undefined },
+    });
+    return extractData<CampaignMedia>(response);
+  }
+
+  async getMediaBlob(mediaId: string): Promise<Blob> {
+    const response = await api.get<Blob>(`/campaigns/media/${mediaId}`, { responseType: 'blob' });
+    return response.data;
+  }
+
+  // What importing this contact list would bring in; nothing is saved.
+  async previewContactsImport(csv: string): Promise<ContactsImportPreview> {
+    const response = await api.post<{ success: boolean; data: ContactsImportPreview }>(
+      '/campaigns/import/preview',
+      { csv },
+    );
+    return extractData<ContactsImportPreview>(response);
+  }
+
+  // One page of who an audience reaches, before or after the campaign is saved.
+  async previewAudience(
+    params: AudiencePreviewParams,
+  ): Promise<{ contacts: AudienceContact[]; total: number; totalPages: number }> {
+    const response = await api.post('/campaigns/audience/preview', params);
+    const { data, meta } = extractResponse<AudienceContact>(response);
+    return {
+      contacts: data ?? [],
+      total: meta?.pagination?.total ?? data?.length ?? 0,
+      totalPages: meta?.pagination?.total_pages ?? 1,
+    };
+  }
+
+  async getRecipients(
+    campaignId: string,
+    status: CampaignRecipientStatus[],
+    perPage = 50,
+  ): Promise<{ recipients: CampaignRecipient[]; total: number }> {
+    const queryParams = new URLSearchParams({ per_page: perPage.toString() });
+    status.forEach(s => queryParams.append('status[]', s));
+    const response = await api.get(`/campaigns/${campaignId}/recipients?${queryParams.toString()}`);
+    const { data, meta } = extractResponse<CampaignRecipient>(response);
+    return { recipients: data ?? [], total: meta?.pagination?.total ?? data?.length ?? 0 };
   }
 
   // Update campaign

@@ -44,7 +44,9 @@ export default function Sidebar({
   const prevActiveSubmenuRef = useRef<MenuItemType | null>(null);
 
   const companyName = t('sidebar.footer.brand');
-  const supportWhatsappUrl = 'https://api.whatsapp.com/send/?phone=553196219989&text=Ol%C3%A1%21+Preciso+de+suporte.&type=phone_number&app_absent=0';
+  // Digits only, so an unset variable (or the unreplaced build placeholder) hides the link
+  const supportWhatsappNumber = (import.meta.env.VITE_SUPPORT_WHATSAPP ?? '').replace(/\D/g, '');
+  const supportWhatsappUrl = `https://api.whatsapp.com/send/?phone=${supportWhatsappNumber}&text=Ol%C3%A1%21+Preciso+de+suporte.&type=phone_number&app_absent=0`;
 
   const totalUnanswered = useUnansweredConversationsStore((state) => state.totalUnanswered);
 
@@ -242,14 +244,16 @@ export default function Sidebar({
                   >
                     {t('sidebar.footer.documentation')}
                   </a>
-                  <a
-                    href={supportWhatsappUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {t('sidebar.footer.support')}
-                  </a>
+                  {supportWhatsappNumber && (
+                    <a
+                      href={supportWhatsappUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t('sidebar.footer.support')}
+                    </a>
+                  )}
                 </div>
               </>
             )}

@@ -60,7 +60,7 @@ import SegmentCreateEdit from '@/pages/Customer/Settings/Segments/SegmentCreateE
 import Journey from '@/pages/Customer/Journey/Journey';
 import JourneyFlowEditor from '@/pages/Customer/Journey/JourneyFlowEditor';
 import Campaigns from '@/pages/Customer/Campaigns/Campaigns';
-import NewCampaign from '@/pages/Customer/Campaigns/NewCampaign/NewCampaign';
+import BroadcastCampaignForm from '@/pages/Customer/Campaigns/BroadcastCampaign/BroadcastCampaignForm';
 import CannedResponses from '@/pages/Customer/Settings/CannedResponses';
 import AiCredentials from '@/pages/Customer/Settings/AiCredentials';
 import IntegrationCredentials from '@/pages/Customer/Settings/IntegrationCredentials';
@@ -650,7 +650,7 @@ const AppRouter = () => {
                 <CustomerRoute>
                   <MainLayout>
                     <PermissionRoute resource="campaigns" action="create">
-                      <NewCampaign />
+                      <BroadcastCampaignForm />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>
@@ -665,7 +665,7 @@ const AppRouter = () => {
                 <CustomerRoute>
                   <MainLayout>
                     <PermissionRoute resource="campaigns" action="update">
-                      <NewCampaign />
+                      <BroadcastCampaignForm />
                     </PermissionRoute>
                   </MainLayout>
                 </CustomerRoute>

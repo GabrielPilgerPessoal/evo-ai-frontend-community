@@ -113,7 +113,25 @@ export default function CampaignsTable({
       key: 'status',
       label: t('table.columns.status'),
       sortable: true,
-      render: campaign => <CampaignStatusBadge status={campaign.status} />,
+      render: campaign => {
+        // Paused by the service shows the reason; a daily-limit hold shows when it resumes.
+        const reason =
+          campaign.status === CampaignStatus.SENDING
+            ? campaign.notice
+            : campaign.status === CampaignStatus.PAUSED || campaign.status === CampaignStatus.DRAFT
+              ? campaign.last_error
+              : null;
+        return (
+          <div>
+            <CampaignStatusBadge status={campaign.status} />
+            {reason && (
+              <div className="mt-1 max-w-[220px] truncate text-xs text-amber-500" title={reason}>
+                {reason}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: 'contacts',
@@ -190,8 +208,7 @@ export default function CampaignsTable({
         <div className="flex items-center justify-center gap-1">
           {(campaign.status === CampaignStatus.DRAFT ||
             campaign.status === CampaignStatus.SCHEDULED ||
-            campaign.status === CampaignStatus.PAUSED ||
-            campaign.status === CampaignStatus.STOPPED) && (
+            campaign.status === CampaignStatus.PAUSED) && (
             <Button
               variant="ghost"
               size="sm"
@@ -201,7 +218,7 @@ export default function CampaignsTable({
                 onStartCampaign(campaign);
               }}
               title={
-                campaign.status === CampaignStatus.PAUSED || campaign.status === CampaignStatus.STOPPED
+                campaign.status === CampaignStatus.PAUSED
                   ? t('card.actions.resume')
                   : t('card.actions.start')
               }
@@ -258,8 +275,7 @@ export default function CampaignsTable({
       show: campaign =>
         campaign.status === CampaignStatus.DRAFT ||
         campaign.status === CampaignStatus.SCHEDULED ||
-        campaign.status === CampaignStatus.PAUSED ||
-        campaign.status === CampaignStatus.STOPPED,
+        campaign.status === CampaignStatus.PAUSED,
     },
     {
       label: t('card.actions.pause'),
@@ -287,6 +303,8 @@ export default function CampaignsTable({
       label: t('card.actions.edit'),
       icon: <Edit className="h-4 w-4" />,
       onClick: onEditCampaign,
+      show: campaign =>
+        campaign.status === CampaignStatus.DRAFT || campaign.status === CampaignStatus.SCHEDULED,
     },
     {
       label: t('card.actions.delete'),

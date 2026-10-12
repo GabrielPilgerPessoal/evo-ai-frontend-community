@@ -23,6 +23,80 @@ export enum CampaignChannelType {
   SMS = 'Channel::Sms',
 }
 
+export type CampaignPace = 'fast' | 'moderate' | 'slow';
+export type CampaignAudience = 'labels' | 'all' | 'csv';
+export type CampaignMessageType = 'text' | 'image' | 'audio' | 'file';
+
+// One message of the sequence each contact receives, in order.
+export interface CampaignMessage {
+  type: CampaignMessageType;
+  // Body of a text, or caption of an image or file.
+  text?: string;
+  media_id?: string;
+  filename?: string;
+  content_type?: string;
+  size?: number;
+  duration_seconds?: number;
+}
+
+export interface CampaignMedia {
+  id: string;
+  filename: string;
+  content_type: string;
+  size: number;
+}
+
+export interface BroadcastCampaignData {
+  name: string;
+  description?: string;
+  inbox_id: string;
+  messages: CampaignMessage[];
+  pace: CampaignPace;
+  send_to_all: boolean;
+  tags: string[];
+  // Contact list (name and phone columns); replaces the label audience when present.
+  contacts_csv?: string;
+  daily_limit?: number | null;
+  schedule_to?: string;
+}
+
+export interface ContactsImportPreview {
+  valid_count: number;
+  invalid_count: number;
+  duplicate_count: number;
+  truncated: boolean;
+  invalid: Array<{ line: number; value: string }>;
+  sample: Array<{ name: string; number: string }>;
+}
+
+// A contact an audience reaches; `eligible` is false when the campaign skips it.
+export interface AudienceContact {
+  name: string;
+  number: string;
+  eligible: boolean;
+  reason: 'no_phone' | 'blocked' | 'group' | null;
+}
+
+export interface AudiencePreviewParams {
+  send_to_all?: boolean;
+  tags?: string[];
+  contacts_csv?: string;
+  campaign_id?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export type CampaignRecipientStatus = 'pending' | 'sent' | 'delivered' | 'read' | 'failed' | 'skipped';
+
+export interface CampaignRecipient {
+  id: string;
+  name: string;
+  number: string;
+  status: CampaignRecipientStatus;
+  error: string | null;
+  sent_at: string | null;
+}
+
 export const CampaignStatusLabels: Record<CampaignStatus, string> = {
   [CampaignStatus.DRAFT]: 'Rascunho',
   [CampaignStatus.SCHEDULED]: 'Agendada',
@@ -117,6 +191,18 @@ export interface Campaign {
   created_at: string;
   updated_at: string;
   deleted_at?: string;
+
+  // Broadcast (gcen-campaigns)
+  message?: string;
+  messages?: CampaignMessage[];
+  pace?: CampaignPace;
+  failed_contacts?: number;
+  last_error?: string | null;
+  audience?: CampaignAudience;
+  imported_contacts_count?: number;
+  daily_limit?: number | null;
+  // Why a sending campaign is standing still without being paused (e.g. daily limit reached).
+  notice?: string | null;
 
   // Relacionamentos
   templates?: CampaignTemplate[];

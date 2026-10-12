@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -12,12 +12,19 @@ import {
   Button,
   Label,
 } from '@evoapi/design-system';
-import { Megaphone } from 'lucide-react';
+import { AlertTriangle, Megaphone } from 'lucide-react';
 import EmptyState from '@/components/base/EmptyState';
 
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { campaignsService } from '@/services/campaigns';
-import { Campaign, CampaignsState, CampaignsListParams } from '@/types/campaigns';
+import {
+  Campaign,
+  CampaignRecipient,
+  CampaignStatus,
+  CampaignsState,
+  CampaignsListParams,
+} from '@/types/campaigns';
+import CampaignStatusBadge from '@/components/campaigns/CampaignStatusBadge';
 import { DEFAULT_PAGE_SIZE } from '@/constants/pagination';
 
 import {
@@ -25,6 +32,22 @@ import {
   CampaignsPagination,
   CampaignsTable,
 } from '@/components/campaigns';
+
+// How often campaigns that are sending are re-read to show their progress.
+const LIVE_REFRESH_MS = 5000;
+
+const PACE_LABELS: Record<string, string> = { fast: 'Rápido', moderate: 'Moderado', slow: 'Lento' };
+
+const audienceLabel = (campaign: Campaign): string => {
+  if (campaign.audience === 'csv') {
+    return `Lista importada (${(campaign.imported_contacts_count ?? 0).toLocaleString('pt-BR')} contatos)`;
+  }
+  if (campaign.send_to_all) return 'Todos os contatos';
+  return campaign.tags?.length ? `Etiquetas: ${campaign.tags.join(', ')}` : '-';
+};
+
+const isEditable = (campaign: Campaign): boolean =>
+  campaign.status === CampaignStatus.DRAFT || campaign.status === CampaignStatus.SCHEDULED;
 
 const INITIAL_STATE: CampaignsState = {
   campaigns: [],
@@ -68,6 +91,10 @@ export default function Campaigns() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsCampaign, setDetailsCampaign] = useState<Campaign | null>(null);
+  const [failedRecipients, setFailedRecipients] = useState<{ recipients: CampaignRecipient[]; total: number }>({
+    recipients: [],
+    total: 0,
+  });
   const [statsCampaign, setStatsCampaign] = useState<Campaign | null>(null);
   const [statsData, setStatsData] = useState<Campaign['stats'] | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -124,6 +151,38 @@ export default function Campaigns() {
     loadCampaigns();
   }, [permissionsReady, loadCampaigns]);
 
+  const [dryRun, setDryRun] = useState(false);
+  useEffect(() => {
+    campaignsService
+      .isDryRun()
+      .then(setDryRun)
+      .catch(() => setDryRun(false));
+  }, []);
+
+  // Keeps the progress of sending campaigns moving without reloading the list.
+  const liveCampaigns = useRef<{ list: Campaign[]; details: Campaign | null }>({ list: [], details: null });
+  liveCampaigns.current = { list: state.campaigns, details: detailsDialogOpen ? detailsCampaign : null };
+
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      const { list, details } = liveCampaigns.current;
+      const ids = new Set(list.filter(c => c.status === CampaignStatus.SENDING).map(c => c.id));
+      if (details?.status === CampaignStatus.SENDING) ids.add(details.id);
+      if (ids.size === 0) return;
+
+      const results = await Promise.allSettled([...ids].map(id => campaignsService.getCampaign(id)));
+      const fresh = new Map<string, Campaign>();
+      results.forEach(result => {
+        if (result.status === 'fulfilled') fresh.set(result.value.id, result.value);
+      });
+      if (fresh.size === 0) return;
+
+      setState(prev => ({ ...prev, campaigns: prev.campaigns.map(c => fresh.get(c.id) ?? c) }));
+      setDetailsCampaign(prev => (prev && fresh.get(prev.id)) || prev);
+    }, LIVE_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, []);
+
   // Handlers
   const handleSearchChange = (query: string) => {
     setState(prev => ({
@@ -176,8 +235,12 @@ export default function Campaigns() {
     setDetailsDialogOpen(true);
     setDetailsLoading(true);
     try {
+      setFailedRecipients({ recipients: [], total: 0 });
       const fullCampaign = await campaignsService.getCampaign(campaign.id);
       setDetailsCampaign(fullCampaign);
+      if (fullCampaign.failed_contacts) {
+        setFailedRecipients(await campaignsService.getRecipients(campaign.id, ['failed'], 20));
+      }
     } catch (error) {
       console.error('Error loading campaign details:', error);
       setDetailsCampaign(campaign);
@@ -360,6 +423,15 @@ export default function Campaigns() {
 
   return (
     <div className="h-full flex flex-col p-4">
+      {dryRun && (
+        <div className="mb-4 flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-500" />
+          <p>
+            <strong>Modo de teste ativo:</strong> as campanhas rodam até o fim, mas nenhuma mensagem é
+            enviada ao WhatsApp. &quot;Enviadas&quot; aqui significa apenas simuladas.
+          </p>
+        </div>
+      )}
       <CampaignsHeader
         totalCount={state.meta.pagination.total}
         selectedCount={state.selectedCampaignIds.length}
@@ -514,11 +586,7 @@ export default function Campaigns() {
           {detailsLoading ? (
             <div className="py-6 text-sm text-muted-foreground">{t('dialog.details.loading')}</div>
           ) : detailsCampaign ? (
-            <div className="grid grid-cols-1 gap-3">
-              <div className="rounded-md border border-sidebar-border p-3">
-                <Label className="text-xs text-muted-foreground">{t('dialog.details.fields.title')}</Label>
-                <div className="mt-1 text-sm font-semibold">{detailsCampaign.title}</div>
-              </div>
+            <div className="grid grid-cols-1 gap-3 max-h-[65vh] overflow-y-auto pr-1">
               <div className="rounded-md border border-sidebar-border p-3">
                 <Label className="text-xs text-muted-foreground">{t('dialog.details.fields.name')}</Label>
                 <div className="mt-1 text-sm font-semibold">{detailsCampaign.name}</div>
@@ -534,20 +602,83 @@ export default function Campaigns() {
                   <Label className="text-xs text-muted-foreground">
                     {t('dialog.details.fields.status')}
                   </Label>
-                  <div className="mt-1 text-sm font-semibold">{detailsCampaign.status}</div>
+                  <div className="mt-1">
+                    <CampaignStatusBadge status={detailsCampaign.status} />
+                  </div>
                 </div>
                 <div className="rounded-md border border-sidebar-border p-3">
+                  <Label className="text-xs text-muted-foreground">Ritmo</Label>
+                  <div className="mt-1 text-sm font-semibold">
+                    {PACE_LABELS[detailsCampaign.pace ?? ''] ?? '-'}
+                    {detailsCampaign.daily_limit ? ` · até ${detailsCampaign.daily_limit}/dia` : ''}
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-md border border-sidebar-border p-3">
+                <Label className="text-xs text-muted-foreground">Quem recebe</Label>
+                <div className="mt-1 text-sm">{audienceLabel(detailsCampaign)}</div>
+              </div>
+              {(detailsCampaign.notice || detailsCampaign.last_error) && (
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+                  {detailsCampaign.notice || detailsCampaign.last_error}
+                </div>
+              )}
+              {detailsCampaign.status !== CampaignStatus.DRAFT &&
+                detailsCampaign.status !== CampaignStatus.SCHEDULED && (
+                  <div className="rounded-md border border-sidebar-border p-3">
+                    <Label className="text-xs text-muted-foreground">Progresso</Label>
+                    <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all"
+                        style={{ width: `${detailsCampaign.sent_percentage ?? 0}%` }}
+                      />
+                    </div>
+                    <div className="mt-2 grid grid-cols-4 gap-2 text-center text-xs text-muted-foreground">
+                      {[
+                        ['Enviadas', detailsCampaign.stats?.total_sent],
+                        ['Entregues', detailsCampaign.stats?.total_delivered],
+                        ['Lidas', detailsCampaign.stats?.total_read],
+                        ['Falhas', detailsCampaign.stats?.total_errors],
+                      ].map(([label, value]) => (
+                        <div key={label}>
+                          <div className="text-base font-semibold text-foreground">
+                            {(value ?? 0).toLocaleString('pt-BR')}
+                          </div>
+                          {label}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      de {(detailsCampaign.contacts_count ?? 0).toLocaleString('pt-BR')} contatos
+                    </div>
+                  </div>
+                )}
+              {failedRecipients.recipients.length > 0 && (
+                <div className="rounded-md border border-sidebar-border p-3">
                   <Label className="text-xs text-muted-foreground">
-                    {t('dialog.details.fields.channel')}
+                    Falhas ({failedRecipients.total.toLocaleString('pt-BR')})
                   </Label>
-                  <div className="mt-1 text-sm font-semibold">{detailsCampaign.channel_type || '-'}</div>
+                  <ul className="mt-1 max-h-32 overflow-y-auto text-xs space-y-1">
+                    {failedRecipients.recipients.map(recipient => (
+                      <li key={recipient.id} className="truncate" title={recipient.error ?? ''}>
+                        <span className="font-medium">{recipient.name || `+${recipient.number}`}</span>
+                        {recipient.error ? `: ${recipient.error}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="rounded-md border border-sidebar-border p-3">
+                <Label className="text-xs text-muted-foreground">Mensagem</Label>
+                <div className="mt-1 max-h-32 overflow-y-auto whitespace-pre-wrap text-sm">
+                  {detailsCampaign.message || '-'}
                 </div>
               </div>
             </div>
           ) : null}
 
           <DialogFooter>
-            {detailsCampaign && (
+            {detailsCampaign && isEditable(detailsCampaign) && (
               <Button
                 onClick={() => {
                   setDetailsDialogOpen(false);
@@ -631,13 +762,12 @@ export default function Campaigns() {
             {statsCampaign &&
               (statsCampaign.status === 0 ||
                 statsCampaign.status === 1 ||
-                statsCampaign.status === 3 ||
-                statsCampaign.status === 4) && (
+                statsCampaign.status === 3) && (
                 <Button
                   variant="outline"
                   onClick={() => handleStartCampaign(statsCampaign)}
                 >
-                  {statsCampaign.status === 3 || statsCampaign.status === 4
+                  {statsCampaign.status === 3
                     ? t('dialog.stats.actions.resume')
                     : t('dialog.stats.actions.start')}
                 </Button>
