@@ -394,7 +394,7 @@ export default function EvolutionHubConfig() {
                 <ul className="space-y-2">
                   {hubPreview.options.allowed_modes.includes('shared') && (
                     <li className="rounded-md border p-3 text-sm">
-                      <span className="font-medium">Meta App da Evolution (Cloud)</span>
+                      <span className="font-medium">Meta App da Gcen (Cloud)</span>
                       <span className="ml-2 text-xs text-muted-foreground">compartilhada</span>
                     </li>
                   )}

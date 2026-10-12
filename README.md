@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://evolutionfoundation.com.br">
-    <img src="./public/hover-evolution.png" alt="Evolution Foundation" />
+    <img src="./public/logo.png" alt="Gcen" />
   </a>
 </p>
 

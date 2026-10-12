@@ -52,7 +52,7 @@
     },
     "accessToken": {
       "title": "Token de Acesso da API",
-      "description": "Use este token para acessar a API do Evolution. Mantenha-o seguro e não o compartilhe.",
+      "description": "Use este token para acessar a API do Gcen. Mantenha-o seguro e não o compartilhe.",
       "actions": {
         "copy": "Copiar",
         "reset": "Resetar Token",

@@ -258,7 +258,7 @@
       "woocommerce": {
         "title": "Chiavi API di WooCommerce",
         "step1": "Nella dashboard di WordPress, vai su WooCommerce → Impostazioni → Avanzate → API REST.",
-        "step2": "Clicca su \"Aggiungi chiave\" e dai una descrizione (es. Evo CRM).",
+        "step2": "Clicca su \"Aggiungi chiave\" e dai una descrizione (es. Gcen CRM).",
         "step3": "In Permessi scegli \"Lettura\" e genera la chiave.",
         "step4": "Copia la Consumer key (ck_...) e la Consumer secret (cs_...) — la secret è mostrata una sola volta."
       },

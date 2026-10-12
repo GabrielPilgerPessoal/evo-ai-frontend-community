@@ -86,8 +86,8 @@ class AccountService {
         gitSha: import.meta.env.VITE_GIT_SHA || 'unknown',
         isOnEvolutionCloud: globalConfig.hasEvolutionConfig === true || globalConfig.hasEvolutionGoConfig === true || false,
         deploymentEnv: import.meta.env.MODE || 'development',
-        brandName: 'Evolution',
-        installationName: 'Evolution',
+        brandName: 'Gcen',
+        installationName: 'Gcen',
       };
     } catch (error: any) {
       console.error('Erro ao buscar configuração global:', error);
@@ -97,8 +97,8 @@ class AccountService {
         gitSha: import.meta.env.VITE_GIT_SHA || 'unknown',
         isOnEvolutionCloud: false,
         deploymentEnv: import.meta.env.MODE || 'development',
-        brandName: 'Evolution',
-        installationName: 'Evolution',
+        brandName: 'Gcen',
+        installationName: 'Gcen',
       };
     }
   }

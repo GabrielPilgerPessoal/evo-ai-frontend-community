@@ -279,7 +279,7 @@
     "placeholders": {
       "apiKey": "Enter the API Key of BMS",
       "ipPool": "Enter the IP Pool of BMS",
-      "senderEmail": "Ex: Evolution <contact@evoapicloud.com>"
+      "senderEmail": "Ex: Gcen <contact@evoapicloud.com>"
     }
   },
   "dashboardApps": {

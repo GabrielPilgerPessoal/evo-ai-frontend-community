@@ -33,7 +33,7 @@
         "redirectingToAuthorization": "Redirigiendo a autorización..."
       },
       "footer": {
-        "disclaimer": "Al continuar, autoriza la aplicación a acceder a su cuenta Evolution.",
+        "disclaimer": "Al continuar, autoriza la aplicación a acceder a su cuenta Gcen.",
         "revoke": "Puede revocar este acceso en cualquier momento en la configuración de su cuenta."
       },
       "errors": {
@@ -73,7 +73,7 @@
         "goToLogin": "Ir a Login"
       },
       "footer": {
-        "disclaimer": "Al autorizar, permite que esta aplicación acceda a su cuenta Evolution con los permisos solicitados.",
+        "disclaimer": "Al autorizar, permite que esta aplicación acceda a su cuenta Gcen con los permisos solicitados.",
         "revoke": "Puede revocar este acceso en cualquier momento en la configuración de su cuenta."
       },
       "errors": {

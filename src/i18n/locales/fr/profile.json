@@ -52,7 +52,7 @@
     },
     "accessToken": {
       "title": "Jeton d'Accès API",
-      "description": "Utilisez ce jeton pour accéder à l'API Evolution. Gardez-le sécurisé et ne le partagez pas.",
+      "description": "Utilisez ce jeton pour accéder à l'API Gcen. Gardez-le sécurisé et ne le partagez pas.",
       "actions": {
         "copy": "Copier",
         "reset": "Réinitialiser le Jeton",

@@ -33,7 +33,7 @@
         "redirectingToAuthorization": "Redirecting to authorization..."
       },
       "footer": {
-        "disclaimer": "By continuing, you authorize the application to access your Evolution account.",
+        "disclaimer": "By continuing, you authorize the application to access your Gcen account.",
         "revoke": "You can revoke this access at any time in your account settings."
       },
       "errors": {
@@ -73,7 +73,7 @@
         "goToLogin": "Go to Login"
       },
       "footer": {
-        "disclaimer": "By authorizing, you allow this application to access your Evolution account with the requested permissions.",
+        "disclaimer": "By authorizing, you allow this application to access your Gcen account with the requested permissions.",
         "revoke": "You can revoke this access at any time in your account settings."
       },
       "errors": {

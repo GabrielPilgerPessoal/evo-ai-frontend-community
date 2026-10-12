@@ -22,7 +22,7 @@ const SenderNamePreview: React.FC<SenderNamePreviewProps> = ({
       content: t('settings.senderSettings.friendly.description'),
       preview: {
         senderName: 'Smith',
-        businessName: 'Evolution',
+        businessName: 'Gcen',
         email: '<support@yourbusiness.com>',
       },
       icon: User,
@@ -33,7 +33,7 @@ const SenderNamePreview: React.FC<SenderNamePreviewProps> = ({
       content: t('settings.senderSettings.professional.description'),
       preview: {
         senderName: '',
-        businessName: 'Evolution',
+        businessName: 'Gcen',
         email: '<support@yourbusiness.com>',
       },
       icon: Building,
